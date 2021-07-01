@@ -1,0 +1,77 @@
+variables:
+  - group: vm-dsc-policies-vars
+
+trigger:
+  branches:
+    include:
+      - master
+
+jobs:
+  - job: "deploy"
+    displayName: "dsc_configuration_deployment"
+    pool:
+      vmImage: windows-2019
+
+    steps:
+      - checkout: self
+
+      - task: AzurePowerShell@5
+        name: "storageaccountcreate"
+        displayName: "create configuration storage and blob container"
+        inputs:
+          azureSubscription: "$(serviceconnectionname)"
+          scriptPath: "../scripts/New-ConfigurationStorage.ps1"
+          scriptArguments: >-
+            -ResourceGroupName '$(resourcegroupname)'
+            -ContainerName '$(containername)'
+          pwsh: true
+          azurePowerShellVersion: LatestVersion
+
+      - task: AzurePowerShell@5
+        name: "artifactpublish"
+        displayName: "publish artifact to blob container"
+        inputs:
+          azureSubscription: "$(serviceconnectionname)"
+          scriptPath: "../scripts/Publish-Artifact.ps1"
+          scriptArguments: >-
+            -SolutionRootPath "$(Build.SourcesDirectory)"
+            -SubscriptionId '$(subscriptionid)'
+            -ResourceGroupName '$(resourcegroupname)'
+            -StorageAccountName '$(storageaccountname)'
+            -ContainerName '$(containername)'
+            -ConfigurationFileName '$(configurationfilename)'
+          pwsh: true
+          azurePowerShellVersion: LatestVersion
+
+      - task: AzurePowerShell@5
+        name: "installdscextension"
+        displayName: "install dsc extension and update resources"
+        inputs:
+          azureSubscription: "$(serviceconnectionname)"
+          scriptPath: "../scripts/Install-DscPolicies.ps1"
+          scriptArguments: >-
+            -ResourceGroupName '$(resourcegroupname)'
+            -ResourceTypes '$(resourcetypes)'
+            -StorageAccountResourceGroupName '$(resourcegroupname)'
+            -StorageAccountName '$(storageaccountname)'
+            -ContainerName '$(containername)'
+            -ConfigurationFileName '$(configurationfilename)'
+            -ConfigurationArguments '$(configurationarguments)'
+            -ConfigurationName '$(configurationname)'
+            -ExcludeResourceNames '$(excluderesourcenames)'
+            -ArtifactLocation '$(artifacturi)'
+          pwsh: true
+          azurePowerShellVersion: LatestVersion
+
+      - task: AzurePowerShell@5
+        condition: always()
+        name: "storageaccountremove"
+        displayName: "remove configuration storage"
+        inputs:
+          azureSubscription: "$(serviceconnectionname)"
+          scriptPath: "../scripts/Remove-ConfigurationStorage.ps1"
+          scriptArguments: >-
+            -ResourceGroupName '$(resourcegroupname)'
+            -StorageAccountName '$(storageaccountname)'
+          pwsh: true
+          azurePowerShellVersion: LatestVersion
