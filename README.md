@@ -24,7 +24,7 @@ The module folder structure is setup as following:
     │ │ | ├── DSCResources ├── [ModuleName].psd1
     | | |–– [ConfigurationFileName].ps1
 
-More information about composite resources can be found [here](https://docs.microsoft.com/en-us/powershell/scripting/dsc/resources/authoringresourcecomposite?view=powershell-7.1).
+More information about composite resources can be found [Microsoft - Composite resources: Using a DSC configuration as a resource](https://docs.microsoft.com/en-us/powershell/scripting/dsc/resources/authoringresourcecomposite?view=powershell-7.1).
 
 The main script that uses the composite resources is pre-configured with the name `vmBaseline.ps1` and is placed in the folder `configuration`.
 This structure should be maintained so that the automation pipeline can work correctly.
