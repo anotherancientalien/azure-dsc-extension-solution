@@ -1,6 +1,7 @@
 # azure-dsc-extension-solution
 
 A DSC configuration consisting of composite resources wrapped around an automated build solution.
+This DSC configuration uses the 'push' method and the Azure DSC extension.
 
 This folder contains Windows Powershell Desired State Configurations (DSC) and composite resources.
 The configurations contains a setup of settings and configuration for Audit Policies , Security Policies and Registry keys. This set of configurations will remediate security recommendations such as: `Vulnerabilities in security configuration on your virtual machine scale sets should be remediated` in the Azure Security Center. Also these configurations are applicable for both Virtual Machines and VM Scale Sets.
